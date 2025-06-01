@@ -1,0 +1,69 @@
+{
+  "originHash" : "aa09f15d982efbdd23fcc22312e3b9d35c37bac2040860f3be30282719203441",
+  "pins" : [
+    {
+      "identity" : "defaults",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/Defaults",
+      "state" : {
+        "revision" : "00c82eff4550c87cf9c547d7e5493a6a97837061",
+        "version" : "9.0.3"
+      }
+    },
+    {
+      "identity" : "networkimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "state" : {
+        "revision" : "2849f5323265386e200484b0d0f896e73c3411b9",
+        "version" : "6.0.1"
+      }
+    },
+    {
+      "identity" : "swift-cmark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-cmark",
+      "state" : {
+        "revision" : "b022b08312decdc46585e0b3440d97f6f22ef703",
+        "version" : "0.6.0"
+      }
+    },
+    {
+      "identity" : "swift-markdown-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "state" : {
+        "revision" : "5f613358148239d0292c0cef674a3c2314737f9e",
+        "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
+      }
+    },
+    {
+      "identity" : "viewcondition",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kevinhermawan/ViewCondition.git",
+      "state" : {
+        "revision" : "e4342ca47cef22c5bdfb7d67de4fca3b3e747891",
+        "version" : "2.0.1"
+      }
+    },
+    {
+      "identity" : "viewstate",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kevinhermawan/ViewState.git",
+      "state" : {
+        "revision" : "6c85c207c23edf487007542651e3533a80dfa0bc",
+        "version" : "1.2.2"
+      }
+    }
+  ],
+  "version" : 3
+}

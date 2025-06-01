@@ -15,11 +15,7 @@ class ReyaModel {
     private var generationTask: Task<Void, Never>?
     private var baseURL: URL
     
-    var conversation: Conversation {
-        didSet {
-            try! self.modelContext.save()
-        }
-    }
+    var conversation: Conversation
     var status: ReyaStatus = .busy
     var tempResponse: String = ""
     
@@ -31,7 +27,9 @@ class ReyaModel {
         //débloque le bouton "submit"
         self.status = .ready
         
-        print(self.modelContext.sqliteCommand)
+        #if DEBUG
+        print("SQLite command: ", self.modelContext.sqliteCommand)
+        #endif
     }
     
     func sendUserPrompt(prompt: String) {
@@ -41,12 +39,12 @@ class ReyaModel {
         let userItem: ConversationItem = .init(type: .user, content: prompt)
         userItem.conversation = conversation
         self.conversation.items.append(userItem)
-        modelContext.insert(userItem)
 
         generationTask = Task {
             defer {
                 self.status = .ready
             }
+            
             do {
                 let userRequest = conversation.toOllamaChatRequest()
                 let request = OllamaRouter.chat(data: userRequest).asURLRequest(with: baseURL)

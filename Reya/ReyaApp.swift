@@ -8,6 +8,8 @@
 import SwiftUI
 import SwiftData
 
+import Defaults
+
 @main
 struct ReyaApp: App {
     
@@ -27,7 +29,7 @@ struct ReyaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ConversationView(baseURL: URL(string: "http://localhost:11434")!)
+            ConversationView()
         }
         .modelContainer(sharedModelContainer)
     }

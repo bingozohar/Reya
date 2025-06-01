@@ -13,18 +13,18 @@ class Conversation: Identifiable {
     @Attribute(.unique) var id: UUID = UUID()
     
     var model: String
-    var context: String?
+    var personaPrompt: String?
     var timestamp: Date
     
     @Relationship(deleteRule: .cascade)
     var items: [ConversationItem] = []
     
-    init(timestamp: Date = Date.now, model: String) {
+    init(timestamp: Date = Date.now, model: String, personaPrompt: String?) {
         self.timestamp = timestamp
         self.model = model
         self.items = []
         
-        self.context = "Je suis un assistant virtuel nommé Reya. Je vais vous parler en français."
+        self.personaPrompt = personaPrompt
     }
 }
 
@@ -33,7 +33,7 @@ extension Conversation {
         var messages: [OllamaChatRequest.Message] = []
         
         // Fournit le contexte par defaut
-        let context: OllamaChatRequest.Message = .init(role: .user, content: self.context ?? "")
+        let context: OllamaChatRequest.Message = .init(role: .user, content: self.personaPrompt ?? "")
         messages.append(context)
         // Parcours les messages pour redonner l'historique
         for item in items {

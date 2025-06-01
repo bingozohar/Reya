@@ -1,5 +1,13 @@
+//
+//  NewConversationView.swift
+//  Reya
+//
+//  Created by Romaryc Pelissie on 01/06/2025.
+//
+
 import SwiftUI
 import SwiftData
+
 import Defaults
 
 struct NewConversationView: View {
