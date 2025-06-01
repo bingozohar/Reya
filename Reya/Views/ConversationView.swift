@@ -6,29 +6,28 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MessageBubble: View {
-    var message: ConversationItem
+    var content: String
     
     var body: some View {
-        Text(message.content)
+        Text(content)
     }
 }
 
 struct ConversationView: View {
+    @Namespace var bottomID
     @Environment(\.modelContext) private var modelContext
-    
+    @Query(sort: \Conversation.timestamp) var conversations: [Conversation]
+
     let baseURL: URL
-    let conversation: Conversation
     
+    @State private var conversation: Conversation?
     @State private var reyaModel: ReyaModel?
     @State private var prompt: String = ""
     
-    /*init(baseURL: URL, conversation: Conversation) {
-        self._reyaModel = StateObject(wrappedValue: ReyaModel(baseURL: baseURL,
-                                                              conversation: conversation))
-        print("REYA MODEL STATUS: \(self.reyaModel.status)")
-    }*/
+    @State private var scrollProxy: ScrollViewProxy? = nil
     
     var body: some View {
         VStack(alignment: .leading, spacing:4) {
@@ -36,21 +35,13 @@ struct ConversationView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            ForEach(reyaModel.conversation.items) { message in
-                                MessageBubble(message: message)
+                            ForEach(reyaModel.conversation.sortedItems) { message in
+                                MessageBubble(content: message.content.isNotEmpty ? message.content : reyaModel.tempResponse)
                                 Divider()
                             }
-                            
                         }
                     }
-                    .onChange(of: reyaModel.conversation.items.count) { _, _ in
-                        if let lastItem = reyaModel.conversation.items.last {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                proxy.scrollTo(lastItem.id, anchor: .bottom)
-                            }
-                        }
-                    }
-                    
+                    .defaultScrollAnchor(.bottom)
                 }
                 Spacer()
                 Divider()
@@ -60,7 +51,7 @@ struct ConversationView: View {
                         .onSubmit(sendMessage)
                     
                     Button(action: sendMessage) {
-                        if reyaModel.status == .generate {
+                        if reyaModel.status == .busy {
                             ProgressView()
                                 .scaleEffect(0.4)
                         } else {
@@ -72,25 +63,38 @@ struct ConversationView: View {
                 }
             }
         }
+        .background(
+            Button("RESET CONVERSATION") {
+                modelContext.delete(self.conversation!)
+                self.conversation = Conversation(model: "gemma3")
+                reyaModel?.conversation = self.conversation!
+            }.keyboardShortcut("n", modifiers: .command)
+            .hidden()
+        )
         .onAppear {
+            //Si une conversation existe, on va proposer de l'utiliser
+            if let conv: Conversation = conversations.last {
+                self.conversation = conv
+            } else {
+                self.conversation = Conversation(model: "gemma3")
+            }
+            
             if reyaModel == nil {
-                reyaModel = ReyaModel(baseURL: baseURL,
-                                      conversation: conversation)
+                reyaModel = ReyaModel(
+                    modelContext: self.modelContext,
+                    baseURL: baseURL,
+                    conversation: self.conversation!)
             }
         }
         .padding()
     }
     
     func sendMessage() {
-        guard !prompt.isEmpty, let reyaModel = reyaModel else { return }
-        
-        let userItem = ConversationItem(type: .user, content: prompt)
-        reyaModel.conversation.items.append(userItem)
-        
-        // Sauvegarder immédiatement
-        try? modelContext.save()
-        
+        guard prompt.isNotEmpty, let reyaModel = reyaModel else { return }
+        //reset prompt
+        let prompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         reyaModel.sendUserPrompt(prompt: prompt)
+        self.prompt = ""
     }
 }
 

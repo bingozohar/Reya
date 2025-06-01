@@ -6,42 +6,60 @@
 //
 
 import Foundation
+import SwiftData
 
 @MainActor
-class ReyaModel: ObservableObject {
-    var baseURL: URL
-    @Published var status: ReyaStatus = .ready
-    @Published var conversation: Conversation
+@Observable
+class ReyaModel {
+    private var modelContext: ModelContext
+    private var generationTask: Task<Void, Never>?
+    private var baseURL: URL
     
-    init(baseURL: URL, conversation: Conversation) {
-        self.status = .ready
+    var conversation: Conversation {
+        didSet {
+            try! self.modelContext.save()
+        }
+    }
+    var status: ReyaStatus = .busy
+    var tempResponse: String = ""
+    
+    init(modelContext: ModelContext, baseURL: URL, conversation: Conversation) {
+        self.modelContext = modelContext
         self.baseURL = baseURL
         self.conversation = conversation
         
-        let item = ConversationItem(type: .system, content: "Model: " + conversation.model)
-        self.conversation.items.append(item)
+        //débloque le bouton "submit"
+        self.status = .ready
+        
+        print(self.modelContext.sqliteCommand)
     }
     
     func sendUserPrompt(prompt: String) {
-        Task {
+        self.status = .busy
+        
+        //ajoute la saisie de l'utilisateur à la collection
+        let userItem: ConversationItem = .init(type: .user, content: prompt)
+        userItem.conversation = conversation
+        self.conversation.items.append(userItem)
+        modelContext.insert(userItem)
+
+        generationTask = Task {
             defer {
                 self.status = .ready
             }
             do {
-                self.status = .generate
-                var messages: [OllamaChatRequest.Message] = []
-                messages.append(OllamaChatRequest.Message(role: .user, content: prompt))
-                
-                let userRequest = OllamaChatRequest(model: self.conversation.model, messages: messages)
+                let userRequest = conversation.toOllamaChatRequest()
                 let request = OllamaRouter.chat(data: userRequest).asURLRequest(with: baseURL)
                 
+                //Création d'un item vide pour le mettre à jour à la fin du traitement
                 let item = ConversationItem(type: .assistant, content: "")
                 conversation.items.append(item)
                 
                 for try await response: OllamaChatResponse in OllamaClient.stream(request: request) {
-                    item.content += response.message?.content ?? ""
-                    objectWillChange.send()
+                    tempResponse += response.message?.content ?? ""
                 }
+                item.content = tempResponse
+                tempResponse = ""
             } catch {
                 print(error)
             }
@@ -49,8 +67,7 @@ class ReyaModel: ObservableObject {
     }
 }
 
-enum ReyaStatus {
-    case load
+enum ReyaStatus: String, Codable {
     case ready
-    case generate
+    case busy
 }

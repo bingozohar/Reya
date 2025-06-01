@@ -16,7 +16,7 @@ struct ReyaApp: App {
             Conversation.self,
             ConversationItem.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -27,8 +27,7 @@ struct ReyaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ConversationView(baseURL: URL(string: "http://localhost:11434")!,
-                             conversation: Conversation(model: "gemma3"))
+            ConversationView(baseURL: URL(string: "http://localhost:11434")!)
         }
         .modelContainer(sharedModelContainer)
     }

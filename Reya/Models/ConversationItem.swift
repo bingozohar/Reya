@@ -12,12 +12,15 @@ import SwiftData
 class ConversationItem: Identifiable {
     @Attribute(.unique) var id: UUID = UUID()
     
-    var type: ConversationItemType
+    @Relationship
+    var conversation: Conversation?
+    
+    var role: Role
     var timestamp: Date
     var content: String
     
-    init(type: ConversationItemType, timestamp: Date = Date.now, content: String) {
-        self.type = type
+    init(type: Role, timestamp: Date = Date.now, content: String) {
+        self.role = type
         self.timestamp = timestamp
         self.content = content
     }

@@ -1,5 +1,5 @@
 //
-//  OllamaRole.swift
+//  ConversationItemType.swift
 //  Reya
 //
 //  Created by Romaryc Pelissie on 31/05/2025.
