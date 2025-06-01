@@ -19,7 +19,7 @@ class Conversation: Identifiable {
     @Relationship(deleteRule: .cascade)
     var items: [ConversationItem] = []
     
-    init(timestamp: Date = Date.now, model: String, personaPrompt: String?) {
+    init(timestamp: Date = Date.now, model: String, personaPrompt: String? = nil) {
         self.timestamp = timestamp
         self.model = model
         self.items = []

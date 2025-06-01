@@ -15,49 +15,113 @@ struct NewConversationView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State private var selectedModel: String = Defaults[.model]
-    @State private var personaPrompt: String = Defaults[.persona] ?? ""
+    @State private var personaPrompt: String = Defaults[.personaPrompt]
     
     let onConversationCreated: (Conversation) -> Void
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
-                Section("Configuration du modèle") {
+                Section("Selectionner votre modèle") {
                     TextField("Modèle", text: $selectedModel)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .labelsHidden()
                 }
                 
-                Section("Prompt de personnalité") {
+                Spacer()
+                
+                Section("Modifier le prompt par défaut") {
                     TextEditor(text: $personaPrompt)
-                        .frame(minHeight: 100)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
                 }
             }
-            .navigationTitle("Nouvelle Conversation")
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 10)
+            .navigationTitle(Text("Nouvelle conversation"))
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Annuler") {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", role: .cancel) {
                         dismiss()
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Créer") {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
                         createNewConversation()
                     }
-                    .disabled(selectedModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
         }
+        /*VStack(spacing: 20) {
+         
+         // Contenu du formulaire
+         VStack(alignment: .leading, spacing: 20) {
+         // Section Modèle
+         VStack(alignment: .leading, spacing: 8) {
+         Text("Configuration du modèle")
+         .font(.headline)
+         .fontWeight(.medium)
+         
+         TextField("Nom du modèle (ex: llama2, mistral...)", text: $selectedModel)
+         .textFieldStyle(RoundedBorderTextFieldStyle())
+         .frame(maxWidth: .infinity)
+         }
+         
+         // Section Persona Prompt
+         VStack(alignment: .leading, spacing: 8) {
+         Text("Prompt de personnalité")
+         .font(.headline)
+         .fontWeight(.medium)
+         
+         Text("Définissez le comportement et la personnalité de l'assistant")
+         .font(.caption)
+         .foregroundColor(.secondary)
+         
+         ScrollView {
+         TextEditor(text: $personaPrompt)
+         .frame(minHeight: 200)
+         .background(Color(NSColor.textBackgroundColor))
+         }
+         .overlay(
+         RoundedRectangle(cornerRadius: 8)
+         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+         )
+         .frame(height: 220)
+         }
+         
+         Spacer()
+         // Header avec titre et boutons
+         HStack {
+         Button("Annuler") {
+         dismiss()
+         }
+         .keyboardShortcut(.cancelAction)
+         
+         Spacer()
+         
+         Text("Nouvelle Conversation")
+         .font(.title2)
+         .fontWeight(.semibold)
+         
+         Spacer()
+         
+         Button("Créer") {
+         createNewConversation()
+         }
+         .disabled(selectedModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+         .buttonStyle(.borderedProminent)
+         .keyboardShortcut(.defaultAction)
+         }
+         .padding()
+         }
+         .padding(.horizontal)
+         .padding(.bottom)
+         }
+         .frame(width: 500, height: 400) // Taille fixe pour macOS
+         .background(Color(NSColor.windowBackgroundColor))*/
     }
     
     private func createNewConversation() {
         let newConversation = Conversation(
-            model: selectedModel.trimmingCharacters(in: .whitespacesAndNewlines)
+            model: selectedModel.trimmingCharacters(in: .whitespacesAndNewlines),
         )
         
         // Assigner le persona prompt s'il n'est pas vide
@@ -66,7 +130,7 @@ struct NewConversationView: View {
         }
         
         // Supprimer l'ancienne conversation du contexte si elle existe
-        modelContext.insert(newConversation)
+        //modelContext.insert(newConversation)
         
         // Appeler le callback avec la nouvelle conversation
         onConversationCreated(newConversation)

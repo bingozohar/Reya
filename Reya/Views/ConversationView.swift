@@ -29,25 +29,24 @@ struct ConversationView: View {
     @State private var conversation: Conversation?
     @State private var reyaModel: ReyaModel?
     @State private var prompt: String = ""
+    @State private var showingNewConversationSheet = false
     
-    @State private var scrollProxy: ScrollViewProxy? = nil
+    //@State private var scrollProxy: ScrollViewProxy? = nil
     
     var body: some View {
         VStack(alignment: .leading, spacing:4) {
             if let reyaModel = reyaModel {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        /*LazyVStack(spacing: 12) {*/
                         ForEach(reyaModel.conversation.sortedItems) { message in
                             MessageBubble(content: message.content.isNotEmpty ? message.content : reyaModel.tempResponse)
                                 .id(message.id)
                             Divider()
                         }
-                        /*}*/
                     }
                     /*.onAppear {
-                        self.scrollProxy = proxy
-                    }*/
+                     self.scrollProxy = proxy
+                     }*/
                     //TODO: remplacer par une meilleure solution car ne fonctionne pas à 100%
                     .defaultScrollAnchor(.bottom)
                 }
@@ -69,38 +68,25 @@ struct ConversationView: View {
                               || reyaModel.status != .ready)
                 }
                 
-                Button("RESET CONVERSATION") {
-                    modelContext.delete(self.conversation!)
-                    self.conversation = createNewConversation()
-                    if let reyaModel = self.reyaModel {
-                        reyaModel.conversation = self.conversation!
-                    }
+                Button("Nouvelle conversation") {
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 .visible(if: false)
             }
         }
-        .background(
-            
-        )
-        /*.onChange(of: reyaModel?.tempResponse) {
-            
-            if let proxy = scrollProxy {
-                print("Changement ??")
-                scrollToBottom(proxy: proxy)
+        .sheet(isPresented: $showingNewConversationSheet) {
+            NewConversationView { newConversation in
+                handleNewConversation(newConversation)
             }
-        }*/
+        }
         .onAppear {
-            //Si une conversation existe, on va l'utiliser par défaut
-            self.conversation = conversations.last ?? createNewConversation()
-            
-            //Initialise le modele qui permet de faire les appels à l'API
-            if reyaModel == nil {
-                reyaModel = ReyaModel(
-                    modelContext: self.modelContext,
-                    baseURL: self.baseURL!,
-                    conversation: self.conversation!)
+            if let lastConversation = conversations.last {
+                handleNewConversation(lastConversation)
             }
+            else {
+                self.showingNewConversationSheet = true
+            }
+            
         }
         .padding()
     }
@@ -114,18 +100,20 @@ struct ConversationView: View {
         self.prompt = ""
     }
     
-    private func createNewConversation() -> Conversation {
-        let newConversation = Conversation(model: Defaults[.model],
-                                           personaPrompt: Defaults[.personaPrompt])
-        modelContext.insert(newConversation)
-        return newConversation
-    }
-    
-    /*private func scrollToBottom(proxy: ScrollViewProxy) {
-        DispatchQueue.main.async {
-            proxy.scrollTo(conversation?.items.last?.id, anchor: .bottom)
+    private func handleNewConversation(_ newConversation: Conversation) {
+        if self.conversation != nil {
+            print("Delete existing one")
+            modelContext.delete(self.conversation!)
         }
-    }*/
+        self.conversation = newConversation
+        if reyaModel == nil {
+            reyaModel = ReyaModel(
+                modelContext: self.modelContext,
+                baseURL: self.baseURL!,
+                conversation: self.conversation!)
+        }
+        self.reyaModel?.conversation = newConversation
+    }
 }
 
 /*#Preview {
