@@ -13,10 +13,51 @@ import MarkdownUI
 import ViewCondition
 
 struct MessageBubble: View {
+    var role: Role
     var content: String
     
+    private var color: Color {
+        switch role {
+        case .user:
+            return .mint
+        case .assistant:
+            return .purple
+        default:
+            return .gray
+        }
+    }
+    
+    private var edge: Edge {
+        switch role {
+        case .user:
+            return .trailing
+        default:
+            return .leading
+        }
+    }
+    
     var body: some View {
-        Markdown(content)
+        
+        
+        HStack(alignment: .center) {
+            if (role == .assistant) {
+                Spacer()
+                Rectangle().fill(
+                    Color.mint)
+                .frame(width: 2)
+            }
+            Markdown(content)
+                .textSelection(.enabled)
+            //.border(width: 2, edges: [edge], color: color)
+                .padding(10)
+            if (role == .user) {
+                Rectangle().fill(
+                    Color.purple)
+                .frame(width: 2)
+                Spacer()
+            }
+        }
+        .padding(5)
     }
 }
 
@@ -32,16 +73,28 @@ struct ConversationView: View {
     @State private var showingNewConversationSheet = false
     
     //@State private var scrollProxy: ScrollViewProxy? = nil
+    let personaInfo: String = "**Je suis Reya,** *comment puis-je vous aider aujourd'hui?*"
+    
+    // L'animation suit automatiquement l'état de l'AI
+    private var shouldAnimateHeader: Bool {
+        reyaModel?.status == .busy
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing:4) {
+        VStack(alignment: .leading, spacing: 0) {
+            ConversationHeaderView(
+                assistantName: personaInfo,
+                model: conversation?.model ?? "",
+                isAnimationActive: .constant(shouldAnimateHeader)) {
+                    self.showingNewConversationSheet = true
+                }
             if let reyaModel = reyaModel {
                 ScrollViewReader { proxy in
                     ScrollView {
                         ForEach(reyaModel.conversation.sortedItems) { message in
-                            MessageBubble(content: message.content.isNotEmpty ? message.content : reyaModel.tempResponse)
+                            MessageBubble(role: message.role, content: message.content.isNotEmpty ? message.content : reyaModel.tempResponse)
                                 .id(message.id)
-                            Divider()
+                            //Divider()
                         }
                     }
                     /*.onAppear {
@@ -50,28 +103,38 @@ struct ConversationView: View {
                     //TODO: remplacer par une meilleure solution car ne fonctionne pas à 100%
                     .defaultScrollAnchor(.bottom)
                 }
-                
                 Spacer()
                 HStack {
-                    TextField("Tapez vous message...", text: $prompt)
-                        .onSubmit(sendMessage)
+                    Spacer()
+                    TextField("Write your message here", text: $prompt, axis: .vertical)
+                        .padding()
+                        .onSubmit {
+                            //prompt.appendNewLine()
+                            sendMessage()
+                        }
                     
                     Button(action: sendMessage) {
                         if reyaModel.status == .busy {
                             ProgressView()
                                 .scaleEffect(0.4)
                         } else {
-                            Image(systemName: "paperplane.fill")
+                            Image(systemName: "arrowtriangle.up.fill")
+                                .foregroundStyle(.mint)
+                                .imageScale(.large)
+                                .fontWeight(.bold)
                         }
+                    }
+                    .controlSize(.extraLarge)
+                    .clipShape(.circle)
+                    .overlay {
+                        Circle().stroke(.mint, lineWidth: 2)
                     }
                     .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                               || reyaModel.status != .ready)
+                    Spacer()
                 }
-                
-                Button("Nouvelle conversation") {
-                }
-                .keyboardShortcut("r", modifiers: .command)
-                .visible(if: false)
+                .border(width: 2, edges: [.top], color: .mint)
+                //.padding(.horizontal,)
             }
         }
         .sheet(isPresented: $showingNewConversationSheet) {
@@ -88,10 +151,15 @@ struct ConversationView: View {
             }
             
         }
-        .padding()
+        //.padding()
     }
     
-    func sendMessage() {
+    private func copyAction(_ content: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(content, forType: .string)
+    }
+    
+    private func sendMessage() {
         guard prompt.isNotEmpty, let reyaModel = reyaModel else { return }
         //Créer une copie du prompt
         let prompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -102,9 +170,9 @@ struct ConversationView: View {
     
     private func handleNewConversation(_ newConversation: Conversation) {
         if self.conversation != nil {
-            print("Delete existing one")
             modelContext.delete(self.conversation!)
         }
+        modelContext.insert(newConversation)
         self.conversation = newConversation
         if reyaModel == nil {
             reyaModel = ReyaModel(
@@ -116,6 +184,6 @@ struct ConversationView: View {
     }
 }
 
-/*#Preview {
- ConversationView(baseURL: URL(string: "http://localhost")!, model: "model")
- }*/
+#Preview {
+    ConversationView()
+}
