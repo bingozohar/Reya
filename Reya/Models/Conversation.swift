@@ -33,7 +33,7 @@ extension Conversation {
         var messages: [OllamaChatRequest.Message] = []
         
         // Fournit le contexte par defaut
-        let context: OllamaChatRequest.Message = .init(role: .user, content: self.personaPrompt ?? "")
+        let context: OllamaChatRequest.Message = .init(role: .system, content: self.personaPrompt ?? "")
         messages.append(context)
         // Parcours les messages pour redonner l'historique
         for item in items {

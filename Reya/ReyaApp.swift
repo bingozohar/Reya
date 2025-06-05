@@ -29,7 +29,7 @@ struct ReyaApp: App {
     
     var body: some Scene {
         Window("Local Agent", id: "reya-local-ia") {
-            ConversationView()
+            PersonaView()
         }
         //.windowStyle(.hiddenTitleBar)
         .modelContainer(sharedModelContainer)

@@ -15,15 +15,13 @@ class ReyaModel {
     private var generationTask: Task<Void, Never>?
     private var baseURL: URL
     
-    var conversation: Conversation
     var status: ReyaStatus = .busy
     var tempResponse: String = ""
     
-    init(modelContext: ModelContext, baseURL: URL, conversation: Conversation) {
+    init(modelContext: ModelContext, baseURL: URL) {
         self.modelContext = modelContext
         self.baseURL = baseURL
-        self.conversation = conversation
-        
+    
         //débloque le bouton "submit"
         self.status = .ready
         
@@ -32,13 +30,13 @@ class ReyaModel {
         #endif
     }
     
-    func sendUserPrompt(prompt: String) {
+    func sendUserPrompt(conversation: Conversation, prompt: String) {
         self.status = .busy
         
         //ajoute la saisie de l'utilisateur à la collection
         let userItem: ConversationItem = .init(type: .user, content: prompt)
         userItem.conversation = conversation
-        self.conversation.items.append(userItem)
+        conversation.items.append(userItem)
 
         generationTask = Task {
             defer {

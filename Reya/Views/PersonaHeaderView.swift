@@ -10,7 +10,7 @@ import ViewCondition
 
 import MarkdownUI
 
-struct ConversationHeaderView: View {
+struct PersonaHeaderView: View {
     //Variables locales requises
     private let customPointBegin = UnitPoint(x: UnitPoint.center.x + 0.3, y: UnitPoint.center.y)
     @State private var animateGradient: Bool = false
@@ -86,6 +86,6 @@ struct ConversationHeaderView: View {
 }
 
 #Preview {
-    ConversationHeaderView(assistantName: "Reya", model: "gemma3", isAnimationActive: .constant(true)) {
+    PersonaHeaderView(assistantName: "Reya", model: "gemma3", isAnimationActive: .constant(true)) {
     }
 }

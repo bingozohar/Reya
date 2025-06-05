@@ -10,7 +10,7 @@ import SwiftData
 
 import Defaults
 
-struct NewConversationView: View {
+struct PersonaSwiftView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
