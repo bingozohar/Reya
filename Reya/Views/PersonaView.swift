@@ -49,7 +49,7 @@ struct PersonaView: View {
         .onAppear {
             if reyaModel == nil {
                 reyaModel = PersonaViewModel(
-                    modelContext: self.modelContext,
+                    /*modelContext: self.modelContext,*/
                     baseURL: self.baseURL!
                 )
             }

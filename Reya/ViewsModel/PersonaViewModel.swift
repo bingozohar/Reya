@@ -11,22 +11,22 @@ import SwiftData
 @MainActor
 @Observable
 class PersonaViewModel {
-    private var modelContext: ModelContext
+    //private var modelContext: ModelContext
     private var generationTask: Task<Void, Never>?
     private var baseURL: URL
     
     var status: ReyaStatus = .busy
     var tempResponse: String = ""
     
-    init(modelContext: ModelContext, baseURL: URL) {
-        self.modelContext = modelContext
+    init(/*modelContext: ModelContext, */baseURL: URL) {
+        //self.modelContext = modelContext
         self.baseURL = baseURL
     
         //débloque le bouton "submit"
         self.status = .ready
         
         #if DEBUG
-        print("SQLite command: ", self.modelContext.sqliteCommand)
+        //print("SQLite command: ", self.modelContext.sqliteCommand)
         #endif
     }
     
