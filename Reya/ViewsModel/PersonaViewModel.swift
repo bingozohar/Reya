@@ -10,7 +10,7 @@ import SwiftData
 
 @MainActor
 @Observable
-class ReyaModel {
+class PersonaViewModel {
     private var modelContext: ModelContext
     private var generationTask: Task<Void, Never>?
     private var baseURL: URL
@@ -51,7 +51,7 @@ class ReyaModel {
                 let item = ConversationItem(type: .assistant, content: "")
                 conversation.items.append(item)
                 
-                for try await response: OllamaChatResponse in OllamaClient.stream(request: request) {
+                for try await response: OllamaChatResponse in OllamaService.stream(request: request) {
                     tempResponse += response.message?.content ?? ""
                 }
                 item.content = tempResponse

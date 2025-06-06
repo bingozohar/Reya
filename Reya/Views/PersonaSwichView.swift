@@ -12,7 +12,6 @@ import Defaults
 
 struct PersonaSwiftView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @State private var personas = [Persona]()
     @State private var selectedPersona: String?
@@ -113,14 +112,6 @@ struct PersonaSwiftView: View {
     }
     
     private func switchPersona() {
-        /*let newConversation = Conversation(
-            model: personaModel.trimmingCharacters(in: .whitespacesAndNewlines),
-            personaName: ""
-        )
-        // Assigner le persona prompt s'il n'est pas vide
-        if !personaPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            newConversation.personaPrompt = personaPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        }*/
         onPersonaSwitch(
             Persona(
                 id: personaName,

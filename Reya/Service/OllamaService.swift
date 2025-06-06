@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct OllamaClient {
+struct OllamaService {
     static func stream<T: Decodable>(request: URLRequest) -> AsyncThrowingStream<T, Error> {
         let shared: URLSession = .shared
         let decoder: JSONDecoder = .default

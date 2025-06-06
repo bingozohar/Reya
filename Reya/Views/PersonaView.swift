@@ -17,7 +17,7 @@ struct PersonaView: View {
     private let baseURL: URL? = Defaults[.host]
 
     @State private var prompt: String = ""
-    @State private var reyaModel: ReyaModel?
+    @State private var reyaModel: PersonaViewModel?
     @State private var conversation: Conversation?
     @State private var showingPersonaSwichSheet = false
     
@@ -48,7 +48,7 @@ struct PersonaView: View {
         }
         .onAppear {
             if reyaModel == nil {
-                reyaModel = ReyaModel(
+                reyaModel = PersonaViewModel(
                     modelContext: self.modelContext,
                     baseURL: self.baseURL!
                 )
