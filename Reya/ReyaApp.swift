@@ -16,7 +16,7 @@ struct ReyaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Conversation.self,
-            ConversationItem.self,
+            Message.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         

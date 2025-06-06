@@ -10,15 +10,15 @@ import Foundation
 struct OllamaChatRequest: Encodable, Sendable {
     let stream: Bool
     let model: String
-    let messages: [Message]
+    let messages: [ChatMessage]
     
-    init(stream: Bool = true, model: String, messages: [Message]) {
+    init(stream: Bool = true, model: String, messages: [ChatMessage]) {
         self.stream = stream
         self.model = model
         self.messages = messages
     }
     
-    struct Message: Encodable {
+    struct ChatMessage: Encodable {
         let role: Role
         let content: String
         let images: [String]?

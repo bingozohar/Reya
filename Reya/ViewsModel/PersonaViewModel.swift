@@ -34,7 +34,7 @@ class PersonaViewModel {
         self.status = .busy
         
         //ajoute la saisie de l'utilisateur à la collection
-        let userItem: ConversationItem = .init(type: .user, content: prompt)
+        let userItem: Message = .user(prompt)
         userItem.conversation = conversation
         conversation.items.append(userItem)
 
@@ -48,7 +48,7 @@ class PersonaViewModel {
                 let request = OllamaRouter.chat(data: userRequest).asURLRequest(with: baseURL)
                 
                 //Création d'un item vide pour le mettre à jour à la fin du traitement
-                let item = ConversationItem(type: .assistant, content: "")
+                let item : Message = .assistant("")
                 conversation.items.append(item)
                 
                 for try await response: OllamaChatResponse in OllamaService.stream(request: request) {

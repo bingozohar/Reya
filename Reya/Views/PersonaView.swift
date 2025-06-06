@@ -49,7 +49,6 @@ struct PersonaView: View {
         .onAppear {
             if reyaModel == nil {
                 reyaModel = PersonaViewModel(
-                    /*modelContext: self.modelContext,*/
                     baseURL: self.baseURL!
                 )
             }
@@ -107,9 +106,6 @@ struct PersonaView: View {
             let newConversation = Conversation(
                 model: persona.model,
                 persona: persona
-                /*personaName: persona.id,
-                personaDescription: persona.description,
-                personaPrompt: persona.prompt*/
             )
             modelContext.insert(newConversation)
             self.conversation = newConversation
