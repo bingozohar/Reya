@@ -8,14 +8,14 @@
 import Foundation
 
 struct Persona: Identifiable, Codable {
-    let id: String
-    let description: String
-    let prompt: String
-    let model: String
+    var id: String
+    var details: String
+    var prompt: String
+    var model: String
     
     init(id: String, description: String, prompt: String, model: String) {
         self.id = id
-        self.description = description
+        self.details = description
         self.prompt = prompt
         self.model = model
     }

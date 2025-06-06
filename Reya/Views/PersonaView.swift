@@ -28,14 +28,13 @@ struct PersonaView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PersonaHeaderView(
-                name: conversation?.personaName ?? "",
-                description: conversation?.personaDescription ?? "",
-                model: conversation?.model ?? "",
-                isAnimationActive: .constant(shouldAnimateHeader)) {
-                    self.showingPersonaSwichSheet = true
-                }
             if let reyaModel = self.reyaModel, let conversation = self.conversation {
+                PersonaHeaderView(
+                    persona: conversation.persona,
+                    model: conversation.model,
+                    isAnimationActive: .constant(shouldAnimateHeader)) {
+                        self.showingPersonaSwichSheet = true
+                }
                 ConversationView(conversation: conversation, tempResponse: reyaModel.tempResponse)
                 WriteMessageView(prompt: $prompt, status: reyaModel.status, sendMessage: sendMessage)
                     .border(width: 2, edges: [.top], color: .mint)
@@ -64,11 +63,11 @@ struct PersonaView: View {
         }
     }
     
-    private func loadConversation(personaName: String? = nil) -> Conversation? {
+    private func loadConversation(personaId: String? = nil) -> Conversation? {
         let descriptor : FetchDescriptor<Conversation>
         
-        if let personaName {
-            descriptor = FetchDescriptor<Conversation>(predicate: #Predicate { conversation in conversation.personaName == personaName}, sortBy: [SortDescriptor(\.timestamp)])
+        if let personaId {
+            descriptor = FetchDescriptor<Conversation>(predicate: #Predicate { conversation in conversation.persona.id == personaId}, sortBy: [SortDescriptor(\.timestamp)])
         } else {
             descriptor = FetchDescriptor<Conversation>(sortBy: [SortDescriptor(\.timestamp)])
         }
@@ -93,13 +92,13 @@ struct PersonaView: View {
     
     private func switchPersona(_ persona: Persona, reset: Bool) {
         self.conversation = nil
-        if let lastConversation = loadConversation(personaName: persona.id) {
+        if let lastConversation = loadConversation(personaId: persona.id) {
             if reset {
                 modelContext.delete(lastConversation)
             } else {
                 lastConversation.timestamp = Date.now
                 lastConversation.model = persona.model
-                lastConversation.personaPrompt = persona.prompt
+                //lastConversation.persona.prompt = persona.prompt
                 self.conversation = lastConversation
             }
         }
@@ -107,9 +106,10 @@ struct PersonaView: View {
         if self.conversation == nil {
             let newConversation = Conversation(
                 model: persona.model,
-                personaName: persona.id,
+                persona: persona
+                /*personaName: persona.id,
                 personaDescription: persona.description,
-                personaPrompt: persona.prompt
+                personaPrompt: persona.prompt*/
             )
             modelContext.insert(newConversation)
             self.conversation = newConversation

@@ -13,21 +13,23 @@ class Conversation: Identifiable {
     @Attribute(.unique) var id: UUID = UUID()
     
     var model: String
-    var personaName: String
-    var personaDescription: String
-    var personaPrompt: String
+    var persona: Persona
+    //var personaName: String
+    //var personaDescription: String
+    //var personaPrompt: String
     var timestamp: Date
     
     @Relationship(deleteRule: .cascade)
     var items: [ConversationItem] = []
     
-    init(timestamp: Date = Date.now, model: String, personaName: String, personaDescription: String, personaPrompt: String = "") {
+    init(timestamp: Date = Date.now, model: String, persona: Persona) {
         self.timestamp = timestamp
         self.model = model
         self.items = []
-        self.personaName = personaName
-        self.personaDescription = personaDescription
-        self.personaPrompt = personaPrompt
+        self.persona = persona
+        //self.personaName = personaName
+        //self.personaDescription = personaDescription
+        //self.personaPrompt = personaPrompt
     }
 }
 
@@ -36,7 +38,7 @@ extension Conversation {
         var messages: [OllamaChatRequest.Message] = []
         
         // Fournit le contexte par defaut
-        let context: OllamaChatRequest.Message = .init(role: .system, content: self.personaPrompt)
+        let context: OllamaChatRequest.Message = .init(role: .system, content: self.persona.prompt)
         messages.append(context)
         // Parcours les messages pour redonner l'historique
         for item in items {

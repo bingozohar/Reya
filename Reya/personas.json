@@ -1,14 +1,14 @@
 [
     {
         "id": "Reya",
-        "description": "Je suis Reya !",
+        "details": "Je suis Reya !",
         "prompt": "Tu es un assistant virtuel nommé Reya. Utilise le français comme langue principale. Utilise Markdown pour tes réponses.",
         "model": "gemma3",
     },
     
     {
         "id": "Pedro",
-        "description": "Je suis Pedro !",
+        "details": "Je suis Pedro !",
         "prompt": "You are Pedro, a very good assistant",
         "model": "gemma3",
     }

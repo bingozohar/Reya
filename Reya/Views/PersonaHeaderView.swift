@@ -16,8 +16,7 @@ struct PersonaHeaderView: View {
     @State private var animateGradient: Bool = false
     
     //Parametres dynamiques
-    var name: String
-    var description: String
+    var persona: Persona
     var model: String
     @Binding var isAnimationActive: Bool
     var switchPersona: () -> Void
@@ -32,7 +31,7 @@ struct PersonaHeaderView: View {
             
             HStack() {
                 VStack(alignment: .leading) {
-                    Markdown(description)
+                    Markdown(persona.details)
                     Text("Model: " + model)
                         .fontWeight(.light)
                         .italic(true)
@@ -66,9 +65,8 @@ struct PersonaHeaderView: View {
         .frame(height: 70)
     }
     
-    init(name: String, description: String, model: String, isAnimationActive: Binding<Bool>, switchPersona: @escaping () -> Void) {
-        self.name = name
-        self.description = description
+    init(persona: Persona, model: String, isAnimationActive: Binding<Bool>, switchPersona: @escaping () -> Void) {
+        self.persona = persona
         self.model = model
         self._isAnimationActive = isAnimationActive
         self.switchPersona = switchPersona

@@ -44,7 +44,7 @@ struct PersonaSwiftView: View {
                 .onChange(of: selectedPersona, initial: true) { _, _ in
                     if let persona = personas.first(where: { $0.id == selectedPersona}) {
                         personaName = persona.id
-                        personaDescription = persona.description
+                        personaDescription = persona.details
                         personaModel = persona.model
                         personaPrompt = persona.prompt
                     }
