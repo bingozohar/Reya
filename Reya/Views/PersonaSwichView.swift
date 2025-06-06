@@ -14,8 +14,15 @@ struct PersonaSwiftView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
-    @State private var selectedModel: String = Defaults[.model]
-    @State private var personaPrompt: String = Defaults[.personaPrompt]
+    @State private var personas = [Persona]()
+    @State private var selectedPersona: String?
+    
+    @State private var personaName: String = ""
+    @State private var personaDescription: String = ""
+    @State private var personaModel: String = ""
+    @State private var personaPrompt: String = ""
+    @State private var resetPersona: Bool = false
+    
     @State private var availableModels: [String] = [
         "gemma3",
         "gemma3:12b",
@@ -25,51 +32,104 @@ struct PersonaSwiftView: View {
         "llava"
     ]
     
-    let onConversationCreated: (Conversation) -> Void
+    let onPersonaSwitch: (Persona, Bool) -> Void
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Choose your model") {
-                    Picker("Model", selection: $selectedModel) {
-                        ForEach(availableModels, id: \.self) {
-                            Text($0)
-                        }
+            
+            HStack(alignment: .top) {
+                List(personas, id: \.self.id, selection: $selectedPersona) { persona in
+                    Text(persona.id)
+                }
+                .onChange(of: selectedPersona, initial: true) { _, _ in
+                    if let persona = personas.first(where: { $0.id == selectedPersona}) {
+                        personaName = persona.id
+                        personaDescription = persona.description
+                        personaModel = persona.model
+                        personaPrompt = persona.prompt
                     }
                 }
-                
-                Section("Configure prompt used as persona") {
-                    TextEditor(text: $personaPrompt)
+                VStack(alignment: .leading) {
+                    if selectedPersona != nil {
+                        Form {
+                            Section() {
+                                Toggle("Clear conversation", isOn: $resetPersona)
+                            }
+                            Section("Choose your model") {
+                                Picker("", selection: $personaModel) {
+                                    ForEach(availableModels, id: \.self) {
+                                        Text($0)
+                                    }
+                                }
+                            }
+                            Section("Configure prompt used as persona") {
+                                TextEditor(text: $personaPrompt)
+                            }
+                        }
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 10)
+                    }
+                }
+                .padding()
+            }
+        }
+        .navigationTitle(Text("Start a new Conversation"))
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel", role: .cancel) {
+                    dismiss()
                 }
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 10)
-            .navigationTitle(Text("Start a new Conversation"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", role: .cancel) {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Start") {
-                        createNewConversation()
-                    }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Start") {
+                    switchPersona()
                 }
             }
         }
+        .onAppear {
+            personas = decode("personas.json")
+            selectedPersona = personas.first?.id ?? ""
+        }
+        .frame(minWidth: 200, minHeight: 300)
     }
     
-    private func createNewConversation() {
-        let newConversation = Conversation(
-            model: selectedModel.trimmingCharacters(in: .whitespacesAndNewlines),
+    private func decode(_ file: String) -> [Persona] {
+        guard let url = Bundle.main.url(forResource: file, withExtension: nil) else {
+            fatalError("Faliled to locate \(file) in bundle")
+        }
+        
+        guard let data = try? Data(contentsOf: url) else {
+            fatalError("Failed to load file from \(file) from bundle")
+        }
+        
+        let decoder = JSONDecoder()
+        
+        guard let loadedFile = try? decoder.decode([Persona].self, from: data) else {
+            fatalError("Failed to decode \(file) from bundle")
+        }
+        
+        return loadedFile
+    }
+    
+    private func switchPersona() {
+        /*let newConversation = Conversation(
+            model: personaModel.trimmingCharacters(in: .whitespacesAndNewlines),
+            personaName: ""
         )
         // Assigner le persona prompt s'il n'est pas vide
         if !personaPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             newConversation.personaPrompt = personaPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        onConversationCreated(newConversation)
+        }*/
+        onPersonaSwitch(
+            Persona(
+                id: personaName,
+                description: personaDescription,
+                prompt: personaPrompt,
+                model: personaModel,
+            ),
+            self.resetPersona
+        )
         dismiss()
     }
 }

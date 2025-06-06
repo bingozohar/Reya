@@ -16,10 +16,11 @@ struct PersonaHeaderView: View {
     @State private var animateGradient: Bool = false
     
     //Parametres dynamiques
-    var personaInformation: String
-    var modelInformation: String
+    var name: String
+    var description: String
+    var model: String
     @Binding var isAnimationActive: Bool
-    var resetConversation: () -> Void
+    var switchPersona: () -> Void
     
     var body: some View {
         ZStack {
@@ -31,14 +32,14 @@ struct PersonaHeaderView: View {
             
             HStack() {
                 VStack(alignment: .leading) {
-                    Markdown(personaInformation)
-                    Text("Model: " + modelInformation)
+                    Markdown(description)
+                    Text("Model: " + model)
                         .fontWeight(.light)
                         .italic(true)
                 }
                 Spacer()
                 Button {
-                    resetConversation()
+                    switchPersona()
                 } label: {
                     Image(systemName: "heart.slash")
                         .symbolVariant(.fill)
@@ -65,11 +66,12 @@ struct PersonaHeaderView: View {
         .frame(height: 70)
     }
     
-    init(assistantName: String, model: String, isAnimationActive: Binding<Bool>, resetConversation: @escaping () -> Void) {
-        self.personaInformation = assistantName
-        self.modelInformation = model
+    init(name: String, description: String, model: String, isAnimationActive: Binding<Bool>, switchPersona: @escaping () -> Void) {
+        self.name = name
+        self.description = description
+        self.model = model
         self._isAnimationActive = isAnimationActive
-        self.resetConversation = resetConversation
+        self.switchPersona = switchPersona
     }
     
     private func toggleAnimation(active: Bool) {
@@ -85,7 +87,9 @@ struct PersonaHeaderView: View {
     }
 }
 
+/*
 #Preview {
     PersonaHeaderView(assistantName: "Reya", model: "gemma3", isAnimationActive: .constant(true)) {
     }
 }
+*/
